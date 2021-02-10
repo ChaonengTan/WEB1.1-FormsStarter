@@ -129,6 +129,7 @@ def apply_filter(file_path, filter_name):
     """Apply a Pillow filter to a saved image."""
     i = Image.open(file_path)
     i.thumbnail((500, 500))
+    print(filter_types_dict)
     i = i.filter(filter_types_dict.get(filter_name))
     i.save(file_path)
 
@@ -141,23 +142,23 @@ def image_filter():
         
         # TODO: Get the user's chosen filter type (whichever one they chose in the form) and save
         # as a variable
-        filter_type = request.args.get('filter_type')
-        
+        chosenFilter = request.form.get('filter_type')
+        # print(chosenFilter)
         # Get the image file submitted by the user
         image = request.files.get('users_image')
 
         # TODO: call `save_image()` on the image & the user's chosen filter type, save the returned
         # value as the new file path
-        newFilePath = save_image(image, filter_type)
-
+        newFilePath = save_image(image, chosenFilter)
+        # print(newFilePath)
         # TODO: Call `apply_filter()` on the file path & filter type
-        apply_filter(newFilePath, filter_type)
+        apply_filter(newFilePath, chosenFilter)
         image_url = f'./static/images/{image.filename}'
 
         context = {
             # TODO: Add context variables here for:
             # - The full list of filter types
-            'filterList': filter_types_dict,
+            'filterList': filter_types,
             # - The image URL
             'imageUrl': image_url
         }
@@ -167,7 +168,7 @@ def image_filter():
     else: # if it's a GET request
         context = {
             # TODO: Add context variable here for the full list of filter types
-            'filterList': filter_types_dict
+            'filterList': filter_types
         }
         return render_template('image_filter.html', **context)
 
@@ -189,8 +190,8 @@ def gif_search():
     if request.method == 'POST':
         # TODO: Get the search query & number of GIFs requested by the user, store each as a 
         # variable
-        searchQuery = request.args.get('search_query')
-        gifNum = request.args.get('quantity')
+        searchQuery = request.form.get('search_query')
+        gifNum = request.form.get('quantity')
 
         response = requests.get(
             TENOR_URL,
@@ -211,7 +212,7 @@ def gif_search():
         }
 
         # Uncomment me to see the result JSON!
-        pp.pprint(gifs)
+        # pp.pprint(gifs)
 
         return render_template('gif_search.html', **context)
     else:
